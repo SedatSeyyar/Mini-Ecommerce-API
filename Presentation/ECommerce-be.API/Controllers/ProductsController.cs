@@ -26,12 +26,20 @@ namespace ECommerce_be.API.Controllers
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> PostAsync(VM_Create_Product model)
         {
+            if (ModelState.IsValid)
+            {
+
+            }
+            else
+            {
+
+            }
             Product product = new()
             {
                 Name = model.Name,
                 Price = model.Price,
                 Stock = model.Stock,
-                Description= model.Description,
+                Description = model.Description,
             };
             await _productWriteRepository.AddAsync(product);
             await _productWriteRepository.SaveAsync();

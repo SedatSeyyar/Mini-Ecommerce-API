@@ -1,4 +1,6 @@
-﻿using ECommerce_be.Persistence;
+﻿using ECommerce_be.Application.Validators.Products;
+using ECommerce_be.Persistence;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +12,7 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
     .AllowAnyMethod())
 );
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation(configuration => configuration.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
