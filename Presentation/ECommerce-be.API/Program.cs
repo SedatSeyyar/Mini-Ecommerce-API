@@ -1,4 +1,5 @@
 ﻿using ECommerce_be.Application.Validators.Products;
+using ECommerce_be.Infrastructure.Filters;
 using ECommerce_be.Persistence;
 using FluentValidation.AspNetCore;
 
@@ -12,7 +13,10 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
     .AllowAnyMethod())
 );
 
-builder.Services.AddControllers().AddFluentValidation(configuration => configuration.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>());
+builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>())
+    .AddFluentValidation(configuration => configuration.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>())
+    .ConfigureApiBehaviorOptions(options => options.SuppressModelStateInvalidFilter = true); // default validate kontrollerini devre dışı bırakır.
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
