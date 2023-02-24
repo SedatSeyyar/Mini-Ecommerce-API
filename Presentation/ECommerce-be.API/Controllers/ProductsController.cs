@@ -1,5 +1,6 @@
 ﻿using ECommerce_be.Application.Abstractions;
 using ECommerce_be.Application.Repositories;
+using ECommerce_be.Application.RequestParameters;
 using ECommerce_be.Application.ViewModels.Products;
 using ECommerce_be.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -59,8 +60,27 @@ namespace ECommerce_be.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get() => Ok(_productReadRepository.GetAll(tracking: false));
+        public IActionResult Get([FromQuery] Pagination pagination)
+        {
+            var totalCount = _productReadRepository.GetAll(false).Count();
+            var products = _productReadRepository.GetAll(tracking: false)
+            .Skip(pagination.Size * pagination.Page).Take(pagination.Size).Select(p => new
+            {
+                p.Id,
+                p.Name,
+                p.Description,
+                p.Price,
+                p.Stock,
+                p.CreatedTime,
+                p.UpdatedTime
+            });
 
+            return Ok(new
+            {
+                totalCount,
+                products
+            });
+        }
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetByIdAsync(Guid Id) => Ok(await _productReadRepository.GetByIdAsync(Id, tracking: false));
     }
