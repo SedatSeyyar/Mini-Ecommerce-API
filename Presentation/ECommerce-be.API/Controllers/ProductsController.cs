@@ -4,6 +4,7 @@ using ECommerce_be.Application.RequestParameters;
 using ECommerce_be.Application.ViewModels.Products;
 using ECommerce_be.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace ECommerce_be.API.Controllers
@@ -15,12 +16,14 @@ namespace ECommerce_be.API.Controllers
         private readonly IProductService _productService;
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductsController(IProductService productService, IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository)
+        public ProductsController(IProductService productService, IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment)
         {
             _productService = productService;
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpPost]
@@ -34,9 +37,17 @@ namespace ECommerce_be.API.Controllers
                 Stock = model.Stock,
                 Description = model.Description,
             };
-            await _productWriteRepository.AddAsync(product);
-            await _productWriteRepository.SaveAsync();
-            return StatusCode((int)HttpStatusCode.Created);
+            Product existedProduct = await _productReadRepository.GetWhere(x => x.Name.Equals(product.Name) && !x.IsDeleted, false).FirstOrDefaultAsync();
+            if (existedProduct == null)
+            {
+                await _productWriteRepository.AddAsync(product);
+                await _productWriteRepository.SaveAsync();
+                return StatusCode((int)HttpStatusCode.Created);
+            }
+            else
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
         }
 
         [HttpPut]
@@ -83,5 +94,21 @@ namespace ECommerce_be.API.Controllers
         }
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetByIdAsync(Guid Id) => Ok(await _productReadRepository.GetByIdAsync(Id, tracking: false));
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Upload(IFormFile[] files)
+        {
+            string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "resource/product-images");
+
+            foreach (IFormFile file in Request.Form.Files)
+            {
+                string fullPath = Path.Combine(uploadPath, $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}");
+                using FileStream fileStream = new(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
+                await file.CopyToAsync(fileStream);
+                await fileStream.FlushAsync();
+            }
+
+            return StatusCode((int)HttpStatusCode.OK);
+        }
     }
 }

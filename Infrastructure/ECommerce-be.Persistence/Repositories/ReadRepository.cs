@@ -20,7 +20,7 @@ namespace ECommerce_be.Persistence.Repositories
         // AsNoTracking --> Model üzerinde bir değişiklik yapılıp veritabanına kayıt etme işlemi yapılmayacaksa kullanılır.
 
         public IQueryable<T> GetAll(bool tracking = true)
-            => tracking ? Table : Table.AsNoTracking();
+            => tracking ? Table.Where(x=>!x.IsDeleted) : Table.Where(x => !x.IsDeleted).AsNoTracking();
 
         public IQueryable<T> GetWhere(Expression<Func<T, bool>> method, bool tracking = true)
             => tracking ? Table.Where(method) : Table.Where(method).AsNoTracking();
