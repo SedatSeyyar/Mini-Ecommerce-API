@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ECommercebe.Persistence.Migrations
 {
     [DbContext(typeof(ECommerce_beDbContext))]
-    [Migration("20230129163048_mig_1")]
+    [Migration("20230708143513_mig_1")]
     partial class mig1
     {
         /// <inheritdoc />
@@ -70,6 +70,10 @@ namespace ECommercebe.Persistence.Migrations
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DeletedTime")
                         .HasColumnType("timestamp without time zone");

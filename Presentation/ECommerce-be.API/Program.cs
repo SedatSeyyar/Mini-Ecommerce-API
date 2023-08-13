@@ -1,4 +1,5 @@
 ﻿using ECommerce_be.Application.Validators.Products;
+using ECommerce_be.Infrastructure;
 using ECommerce_be.Infrastructure.Filters;
 using ECommerce_be.Persistence;
 using FluentValidation.AspNetCore;
@@ -6,6 +7,8 @@ using FluentValidation.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistenceServices();
+builder.Services.AddInfrastructureServices();
+
 builder.Services.AddCors(options => options.AddDefaultPolicy(
     policy => policy
     .WithOrigins("http://localhost:4200/", "https://localhost:4200/") // Cors'a takılmamak için hangi url'lerden istek atılabilr onlar belirtiliyor.

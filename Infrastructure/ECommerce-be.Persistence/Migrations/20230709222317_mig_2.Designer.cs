@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ECommercebe.Persistence.Migrations
 {
     [DbContext(typeof(ECommerce_beDbContext))]
-    [Migration("20230129163121_mig_2")]
+    [Migration("20230709222317_mig_2")]
     partial class mig2
     {
         /// <inheritdoc />
@@ -55,6 +55,37 @@ namespace ECommercebe.Persistence.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("ECommerce_be.Domain.Entities.File", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DeletedTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Files");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("File");
+
+                    b.UseTphMappingStrategy();
+                });
+
             modelBuilder.Entity("ECommerce_be.Domain.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -71,6 +102,10 @@ namespace ECommercebe.Persistence.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("DeletedTime")
                         .HasColumnType("timestamp without time zone");
 
@@ -83,6 +118,10 @@ namespace ECommercebe.Persistence.Migrations
 
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedTime")
                         .HasColumnType("timestamp without time zone");
@@ -147,6 +186,20 @@ namespace ECommercebe.Persistence.Migrations
                     b.HasIndex("ProductsId");
 
                     b.ToTable("OrderProduct");
+                });
+
+            modelBuilder.Entity("ECommerce_be.Domain.Entities.InvoiceFile", b =>
+                {
+                    b.HasBaseType("ECommerce_be.Domain.Entities.File");
+
+                    b.HasDiscriminator().HasValue("InvoiceFile");
+                });
+
+            modelBuilder.Entity("ECommerce_be.Domain.Entities.ProductImageFile", b =>
+                {
+                    b.HasBaseType("ECommerce_be.Domain.Entities.File");
+
+                    b.HasDiscriminator().HasValue("ProductImageFile");
                 });
 
             modelBuilder.Entity("ECommerce_be.Domain.Entities.Order", b =>

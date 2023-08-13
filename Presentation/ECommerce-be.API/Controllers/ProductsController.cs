@@ -1,6 +1,7 @@
 ﻿using ECommerce_be.Application.Abstractions;
 using ECommerce_be.Application.Repositories;
 using ECommerce_be.Application.RequestParameters;
+using ECommerce_be.Application.Services;
 using ECommerce_be.Application.ViewModels.Products;
 using ECommerce_be.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -13,17 +14,33 @@ namespace ECommerce_be.API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly IProductService _productService;
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IFileService _fileService;
+        private readonly IFileReadRepository _fileReadRepository;
+        private readonly IFileWriteRepository _fileWriteRepository;
+        private readonly IProductImageFileReadRepository _productImageFileReadRepository;
+        private readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
 
-        public ProductsController(IProductService productService, IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment)
+
+        public ProductsController(IProductWriteRepository productWriteRepository,
+                                  IProductReadRepository productReadRepository,
+                                  IWebHostEnvironment webHostEnvironment,
+                                  IFileService fileService,
+                                  IFileWriteRepository fileWriteRepository,
+                                  IFileReadRepository fileReadRepository,
+                                  IProductImageFileWriteRepository productImageFileWriteRepository,
+                                  IProductImageFileReadRepository productImageFileReadRepository)
         {
-            _productService = productService;
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
             _webHostEnvironment = webHostEnvironment;
+            _fileService = fileService;
+            _fileWriteRepository = fileWriteRepository;
+            _fileReadRepository = fileReadRepository;
+            _productImageFileWriteRepository = productImageFileWriteRepository;
+            _productImageFileReadRepository = productImageFileReadRepository;
         }
 
         [HttpPost]
@@ -96,18 +113,12 @@ namespace ECommerce_be.API.Controllers
         public async Task<IActionResult> GetByIdAsync(Guid Id) => Ok(await _productReadRepository.GetByIdAsync(Id, tracking: false));
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload(IFormFile[] files)
+        public async Task<IActionResult> Upload()
         {
-            string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "resource/product-images");
+            var datas = await _fileService.UploadAsync("resource\\product-images", Request.Form.Files);
 
-            foreach (IFormFile file in Request.Form.Files)
-            {
-                string fullPath = Path.Combine(uploadPath, $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}");
-                using FileStream fileStream = new(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
-                await file.CopyToAsync(fileStream);
-                await fileStream.FlushAsync();
-            }
-
+            await _productImageFileWriteRepository.AddRangeAsync(datas.Select(x => new ProductImageFile { Path = x.path, Name = x.fileName }).ToList());
+            await _productImageFileWriteRepository.SaveAsync();
             return StatusCode((int)HttpStatusCode.OK);
         }
     }

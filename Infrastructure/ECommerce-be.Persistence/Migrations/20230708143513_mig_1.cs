@@ -57,6 +57,7 @@ namespace ECommercebe.Persistence.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     Address = table.Column<string>(type: "text", nullable: false),
                     OrderNumber = table.Column<string>(type: "text", nullable: false),
+                    CustomerName = table.Column<string>(type: "text", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     UpdatedTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
