@@ -1,4 +1,4 @@
-﻿using ECommerce_be.Application.Services;
+﻿using ECommerce_be.Application.Abstractions.Storage.Local;
 using ECommerce_be.Infrastructure.StaticServices;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -7,19 +7,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
-namespace ECommerce_be.Infrastructure.Services
+namespace ECommerce_be.Infrastructure.Services.Storage.Local
 {
-    public class FileService : IFileService
+    public class LocalStorage : ILocalStorage
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FileService(IWebHostEnvironment webHostEnvironment)
+        public LocalStorage(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<List<(string fileName, string path)>> UploadAsync(string path, IFormFileCollection files)
+        public async Task DeleteAsync(string path, string fileName) => File.Delete($"{path}\\{fileName}");
+
+        public List<string> GetFiles(string path)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(path);
+            return directoryInfo.GetFiles().Select(file => file.Name).ToList();
+        }
+
+        public bool HasFile(string path, string fileName) => File.Exists($"{path}\\{fileName}");
+
+        public async Task<List<(string fileName, string pathOrContainerName)>> UploadAsync(string path, IFormFileCollection files)
         {
             string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, path);
 
@@ -28,7 +39,7 @@ namespace ECommerce_be.Infrastructure.Services
                 Directory.CreateDirectory(uploadPath);
             }
 
-            List<(string fileName, string path)> datas = new();
+            List<(string fileName, string pathOrContainerName)> datas = new();
             List<bool> results = new();
             foreach (IFormFile file in files)
             {
@@ -61,5 +72,6 @@ namespace ECommerce_be.Infrastructure.Services
                 throw;
             }
         }
+
     }
 }

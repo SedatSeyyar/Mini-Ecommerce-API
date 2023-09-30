@@ -1,7 +1,6 @@
 ﻿using ECommerce_be.Application.Abstractions;
 using ECommerce_be.Application.Repositories;
 using ECommerce_be.Application.RequestParameters;
-using ECommerce_be.Application.Services;
 using ECommerce_be.Application.ViewModels.Products;
 using ECommerce_be.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +16,6 @@ namespace ECommerce_be.API.Controllers
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IFileService _fileService;
         private readonly IFileReadRepository _fileReadRepository;
         private readonly IFileWriteRepository _fileWriteRepository;
         private readonly IProductImageFileReadRepository _productImageFileReadRepository;
