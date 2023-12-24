@@ -14,7 +14,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": false, // Uygulama her çalıştığında browser açılmasını engeller.
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7242;http://localhost:5041",
+      "applicationUrl": "https://localhost:5001;http://localhost:5041",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

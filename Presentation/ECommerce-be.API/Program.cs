@@ -1,6 +1,7 @@
 ﻿using ECommerce_be.Application.Validators.Products;
 using ECommerce_be.Infrastructure;
 using ECommerce_be.Infrastructure.Filters;
+using ECommerce_be.Infrastructure.Services.Storage.Local;
 using ECommerce_be.Persistence;
 using FluentValidation.AspNetCore;
 
@@ -8,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
+
+//builder.Services.AddStorage<LocalStorage>();
+builder.Services.AddStorage(ECommerce_be.Infrastructure.Enums.StorageType.Local);
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(
     policy => policy
