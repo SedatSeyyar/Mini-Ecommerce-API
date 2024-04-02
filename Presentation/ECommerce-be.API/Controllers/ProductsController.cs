@@ -1,9 +1,11 @@
 ﻿using ECommerce_be.Application.Abstractions;
 using ECommerce_be.Application.Abstractions.Storage;
+using ECommerce_be.Application.Features.Queries.GetAllProduct;
 using ECommerce_be.Application.Repositories;
 using ECommerce_be.Application.RequestParameters;
 using ECommerce_be.Application.ViewModels.Products;
 using ECommerce_be.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
@@ -25,6 +27,8 @@ namespace ECommerce_be.API.Controllers
         private readonly IProductImageFileWriteRepository _productImageFileWriteRepository;
         private readonly IStorageService _storageService;
 
+        private readonly IMediator _mediator;
+
 
         public ProductsController(IProductWriteRepository productWriteRepository,
                                   IProductReadRepository productReadRepository,
@@ -33,7 +37,8 @@ namespace ECommerce_be.API.Controllers
                                   IFileWriteRepository fileWriteRepository,
                                   IFileReadRepository fileReadRepository,
                                   IProductImageFileWriteRepository productImageFileWriteRepository,
-                                  IProductImageFileReadRepository productImageFileReadRepository)
+                                  IProductImageFileReadRepository productImageFileReadRepository,
+                                  IMediator mediator)
         {
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
@@ -43,6 +48,7 @@ namespace ECommerce_be.API.Controllers
             _fileReadRepository = fileReadRepository;
             _productImageFileWriteRepository = productImageFileWriteRepository;
             _productImageFileReadRepository = productImageFileReadRepository;
+            _mediator = mediator;
         }
 
         //[HttpPost]
@@ -107,27 +113,13 @@ namespace ECommerce_be.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] Pagination pagination)
+        public async Task<IActionResult> Get([FromQuery] GetAllProductQueryRequest getAllProductQueryRequest)
         {
-            var totalCount = _productReadRepository.GetAll(false).Count();
-            var products = _productReadRepository.GetAll(tracking: false)
-            .Skip(pagination.Size * pagination.Page).Take(pagination.Size).Select(p => new
-            {
-                p.Id,
-                p.Name,
-                p.Description,
-                p.Price,
-                p.Stock,
-                p.CreatedTime,
-                p.UpdatedTime
-            });
+            GetAllProductQueryResponse response = await _mediator.Send(getAllProductQueryRequest);
 
-            return Ok(new
-            {
-                totalCount,
-                products
-            });
+            return Ok(response);
         }
+
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetByIdAsync(Guid Id) => Ok(await _productReadRepository.GetByIdAsync(Id, tracking: false));
 
