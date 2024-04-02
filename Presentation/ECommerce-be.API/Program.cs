@@ -1,7 +1,6 @@
 ﻿using ECommerce_be.Application.Validators.Products;
 using ECommerce_be.Infrastructure;
 using ECommerce_be.Infrastructure.Filters;
-using ECommerce_be.Infrastructure.Services.Storage.Local;
 using ECommerce_be.Persistence;
 using FluentValidation.AspNetCore;
 
@@ -26,6 +25,7 @@ builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers().AddNewtonsoftJson();
 
 var app = builder.Build();
 

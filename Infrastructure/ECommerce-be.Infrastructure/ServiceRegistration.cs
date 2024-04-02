@@ -1,7 +1,7 @@
 ﻿using ECommerce_be.Application.Abstractions.Storage;
 using ECommerce_be.Infrastructure.Enums;
-using ECommerce_be.Infrastructure.Services;
 using ECommerce_be.Infrastructure.Services.Storage;
+using ECommerce_be.Infrastructure.Services.Storage.Azure;
 using ECommerce_be.Infrastructure.Services.Storage.Local;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,6 +27,7 @@ namespace ECommerce_be.Infrastructure
                     services.AddScoped<IStorage, LocalStorage>();
                     break;
                 case StorageType.Azure:
+                    services.AddScoped<IStorage, AzureStorage>();
                     break;
                 case StorageType.AWS:
                     break;

@@ -2,12 +2,6 @@
 using ECommerce_be.Infrastructure.StaticServices;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 
 namespace ECommerce_be.Infrastructure.Services.Storage.Local
 {
@@ -30,7 +24,7 @@ namespace ECommerce_be.Infrastructure.Services.Storage.Local
 
         public bool HasFile(string path, string fileName) => File.Exists($"{path}\\{fileName}");
 
-        public async Task<List<(string fileName, string pathOrContainerName)>> UploadAsync(string path, IFormFileCollection files)
+        public async Task<List<(string fileName, string pathOrContainerName)>> UploadAsync(string path, List<IFormFile> files)
         {
             string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, path);
 
@@ -61,17 +55,18 @@ namespace ECommerce_be.Infrastructure.Services.Storage.Local
         {
             try
             {
-                await using FileStream fileStream = new(path, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
-                await file.CopyToAsync(fileStream);
-                await fileStream.FlushAsync();
+                using (FileStream fileStream = new(path, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024))
+                {
+                    file.CopyTo(fileStream);
+                    fileStream.Flush();
+                }
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 // TODO: It should be fixed when the log structure is created.
                 throw;
             }
         }
-
     }
 }
